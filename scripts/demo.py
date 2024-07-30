@@ -57,12 +57,12 @@ def preprocess(img: Image, mask: Image, resolution: int) -> torch.Tensor:
     img = img.resize((resolution, resolution), Image.BICUBIC)
     mask = mask.resize((resolution, resolution), Image.NEAREST)
     img = np.array(img)
-    mask = np.array(mask)[:, :, np.newaxis] // 255
-    img = torch.Tensor(img).float() * 2 / 255 - 1
-    mask = torch.Tensor(mask).float()
-    img = img.permute(2, 0, 1).unsqueeze(0)
-    mask = mask.permute(2, 0, 1).unsqueeze(0)
-    x = torch.cat([mask - 0.5, img * mask], dim=1)
+    mask = np.array(mask)[:, :, np.newaxis] // 255# 0 ~ 1
+    img = torch.Tensor(img).float() * 2 / 255 - 1 # -1 ~ 1
+    mask = torch.Tensor(mask).float()             # 0 ~ 255 ?
+    img = img.permute(2, 0, 1).unsqueeze(0)       # RGB -> BGR -> [[B, G, R]]
+    mask = mask.permute(2, 0, 1).unsqueeze(0)     # MMM -> MMM -> [[M, M, M]]
+    x = torch.cat([mask - 0.5, img * mask], dim=1)# [[M - 0.5, M - 0.5, M - 0.5], [B * M, G * M, R * M]]
     return x
 
 
